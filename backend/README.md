@@ -16,6 +16,7 @@ FIREBASE_DB_URL=<refer to firebase backend config>
 - `GET auth` to check for the token
 
 
-###### Order (api/v1/order)
+###### Menu (api/v1/menu)
 - `GET /` to fetch all order information in the collection
-- `PUT /orders/{id}` to update a single order information based on the given `uid` or order id
+- `PUT /` to save a single menu information
+- `GET /menu/{id}` to get a single menu information based on the given `ud` or menu id
