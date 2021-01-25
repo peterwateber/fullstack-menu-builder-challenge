@@ -5,7 +5,9 @@
 email: firebase-access@firebase-access.test
 password: firebase-access@firebase-access.test
 ```
+- Frontend has a proxy to `http://localhost:3001` Backend service. Please ensure you run backend service
 
+- Firebase config should be sent via email as these are private keys
 - Set/Create the `.env` variable 
 
 ```javascript
