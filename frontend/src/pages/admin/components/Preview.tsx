@@ -4,12 +4,12 @@ import MenuDialog from "pages/demo/components/MenuDialog"
 import React, { useState } from "react"
 import { connect } from "react-redux"
 import { Link } from "react-router-dom"
-import { MenuAction, setMenuLoading, setMenuViewing } from "store/actions/Menu"
+import { MenuAction, setViewingMenuLoading, setMenuViewing } from "store/actions/Menu"
 import { isEmpty } from "utils/FormUtils"
 
 interface DispatchProps {
     setMenuViewing: (viewing: Menu | null) => MenuAction
-    setMenuLoading: (loading: boolean) => MenuAction
+    setViewingMenuLoading: (loading: boolean) => MenuAction
 }
 
 interface Props extends DispatchProps {
@@ -35,7 +35,7 @@ const Preview: React.FC<Props> = (props) => {
     const handleButtonClick = () => {
         setOpen(!open)
         props.setMenuViewing(item)
-        props.setMenuLoading(false)
+        props.setViewingMenuLoading(false)
     }
 
     const handleDialogClose = () => {
@@ -72,7 +72,7 @@ const Preview: React.FC<Props> = (props) => {
 
 const mapDispatchToProps = {
     setMenuViewing,
-    setMenuLoading,
+    setViewingMenuLoading,
 }
 
 export default connect(null, mapDispatchToProps)(Preview)

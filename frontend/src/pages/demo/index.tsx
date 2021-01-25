@@ -1,3 +1,4 @@
+import Button from "@material-ui/core/Button"
 import CssBaseline from "@material-ui/core/CssBaseline"
 import Divider from "@material-ui/core/Divider"
 import Drawer from "@material-ui/core/Drawer"
@@ -6,7 +7,9 @@ import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import ListSubheader from "@material-ui/core/ListSubheader"
+import MenuItem from "@material-ui/core/MenuItem"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
+import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
 import { Category, Dish, Menus } from "api-contract"
 import queryString from "query-string"
@@ -29,6 +32,7 @@ interface DispatchProps {
 
 interface Props extends DispatchProps, RouteComponentProps<any> {
     menu: Menus
+    email: string | undefined
     loading: boolean
 }
 
@@ -40,6 +44,9 @@ const Demo: React.FC<Props> = (props) => {
     const [queryParams, setQueryParams] = useState(
         queryString.parse(window.location.search)
     )
+    const [category, setCategory] = useState<Category | "">("")
+    const [dish, setDish] = useState<Dish | "">("")
+
     const { getAllMenu, getMenuDetails, loading, menu } = props
 
     const toggleMenuDialog = () => {
@@ -72,6 +79,36 @@ const Demo: React.FC<Props> = (props) => {
         props.clearAuthUser()
     }
 
+    const onChangeFilterCategory = (value: Category, index: number) => {
+        setDish("")
+        setCategory(value)
+        handleFilterSelection(value, "Category", index)
+    }
+
+    const onChangeFilterDish = (value: Dish, index: number) => {
+        setCategory("")
+        setDish(value)
+        handleFilterSelection(value, "Dish", index)
+    }
+    
+
+    useEffect(() => {
+        const findSelected = (by: any, byStr: string): any => {
+            return Object.values(by).find(
+                (c, idx) =>
+                    queryParams.by === byStr &&
+                    idx === Number(queryParams.selected)
+            )
+        }
+        if (queryParams.by === "Category") {
+            setCategory(findSelected(Category, "Category"))
+            setDish("")
+        } else if (queryParams.by === "Dish") {
+            setDish(findSelected(Dish, "Dish"))
+            setCategory("")
+        }
+    }, [queryParams])
+
     useEffect(() => {
         getAllMenu(queryParams)
     }, [getAllMenu, queryParams])
@@ -82,10 +119,6 @@ const Demo: React.FC<Props> = (props) => {
             getMenuDetails(id)
         }
     }, [getMenuDetails, props.match.params.id])
-
-    if (!Boolean(menu?.items?.length)) {
-        return null
-    }
 
     return (
         <div className={classes.root}>
@@ -113,7 +146,14 @@ const Demo: React.FC<Props> = (props) => {
                     }
                 >
                     {Object.values(Category).map((text, index) => (
-                        <ListItem button key={index}>
+                        <ListItem
+                            button
+                            key={index}
+                            selected={
+                                queryParams.by === "Category" &&
+                                Number(queryParams.selected) === index
+                            }
+                        >
                             <ListItemText
                                 primary={text}
                                 onClick={() =>
@@ -140,7 +180,14 @@ const Demo: React.FC<Props> = (props) => {
                     }
                 >
                     {Object.values(Dish).map((text, index) => (
-                        <ListItem button key={index}>
+                        <ListItem
+                            button
+                            key={index}
+                            selected={
+                                queryParams.by === "Dish" &&
+                                Number(queryParams.selected) === index
+                            }
+                        >
                             <ListItemText
                                 primary={text}
                                 onClick={() =>
@@ -153,12 +200,84 @@ const Demo: React.FC<Props> = (props) => {
                 <Divider />
                 <List component="nav">
                     <ListItem button>
-                        <ListItemText primary="Logout" onClick={() => logout()} />
+                        <ListItemText
+                            primary="Logout"
+                            onClick={logout}
+                        />
                     </ListItem>
                 </List>
             </Drawer>
             <main className={classes.content}>
                 <Grid spacing={3} container>
+                    <Grid item xs={12} className={classes.mobileFilter}>
+                        <div className={classes.formControl}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                id="dish"
+                                select
+                                label="Category*"
+                                variant="outlined"
+                                value={category}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                                onChange={(e) => {
+                                    onChangeFilterCategory(
+                                        e.target.value as Category,
+                                        Object.values(Category).indexOf(
+                                            e.target.value as Category
+                                        )
+                                    )
+                                }}
+                            >
+                                {Object.values(Category).map((option, idx) => (
+                                    <MenuItem key={idx} value={option}>
+                                        {option}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </div>
+                        <div className={classes.formControl}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                id="dish"
+                                select
+                                label="Dish*"
+                                variant="outlined"
+                                value={dish}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                                onChange={(e) => {
+                                    onChangeFilterDish(
+                                        e.target.value as Dish,
+                                        Object.values(Dish).indexOf(
+                                            e.target.value as Dish
+                                        )
+                                    )
+                                }}
+                            >
+                                {Object.values(Dish).map((option, idx) => (
+                                    <MenuItem key={idx} value={option}>
+                                        {option}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </div>
+                        <h3>
+                            Welcome, <em>{props?.email}</em>!
+                        </h3>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            disableElevation
+                            onClick={logout}
+                        >
+                            Logout
+                        </Button>
+                    </Grid>
                     {Boolean(Object.values(queryParams).length) && (
                         <Grid item xs={12}>
                             <Typography>
@@ -170,7 +289,7 @@ const Demo: React.FC<Props> = (props) => {
                         </Grid>
                     )}
                     {menu.items.map((item, idx) => (
-                        <Grid key={idx} item xs={4}>
+                        <Grid key={idx} item xs={12} lg={4} md={6} sm={6}>
                             <MenuDetails
                                 item={item}
                                 loading={loading}
@@ -194,15 +313,32 @@ const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
         },
         drawer: {
-            width: 240,
+            display: "none",
             flexShrink: 0,
+            [theme.breakpoints.up("md")]: {
+                display: "flex",
+                width: 240,
+            },
         },
         drawerPaper: {
-            width: 240,
+            [theme.breakpoints.up("md")]: {
+                width: 240,
+            },
+        },
+        mobileFilter: {
+            [theme.breakpoints.up("md")]: {
+                display: "none",
+            },
+        },
+        formControl: {
+            marginBottom: 15,
         },
         content: {
+            padding: "10px",
             flexGrow: 1,
-            padding: theme.spacing(3),
+            [theme.breakpoints.up("sm")]: {
+                padding: theme.spacing(3),
+            },
         },
         listTitle: {
             fontWeight: 700,
@@ -213,6 +349,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const mapStateToProps = (state: RootState) => ({
     menu: state.menu.menu,
+    email: state.auth.user.email,
     loading: state.menu.loading,
 })
 

@@ -122,8 +122,11 @@ const useStyles = makeStyles((theme: Theme) =>
             flex: "1",
         },
         cover: {
-            width: 190,
-            minHeight: 134,
+            width: 130,
+            [theme.breakpoints.up("md")]: {
+                width: 190,
+                minHeight: 134,
+            },
         },
         controls: {
             padding: 16,

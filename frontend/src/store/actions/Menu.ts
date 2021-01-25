@@ -54,7 +54,9 @@ export const getAllMenu = (params: object): ThunkAction<any, any, any, Action> =
             const menu = await MenuService.getAll(params)
             // To avoid internal server errors
             dispatch(setMenu(menu))
+            dispatch(setMenuLoading(false))
         } catch (ex) {
+            dispatch(setMenuLoading(false))
             dispatch(
                 setAuthModal({
                     modal: {
@@ -66,7 +68,6 @@ export const getAllMenu = (params: object): ThunkAction<any, any, any, Action> =
                 })
             )
         }
-        dispatch(setMenuLoading(false))
     }
 }
 
@@ -80,7 +81,9 @@ export const getMenuDetails = (
             const menu = await MenuService.getMenuDetails(id)
             // To avoid internal server errors
             dispatch(setMenuViewing(menu))
+            dispatch(setViewingMenuLoading(false))
         } catch (ex) {
+            dispatch(setViewingMenuLoading(false))
             dispatch(
                 setAuthModal({
                     modal: {
@@ -92,6 +95,5 @@ export const getMenuDetails = (
                 })
             )
         }
-        dispatch(setViewingMenuLoading(false))
     }
 }

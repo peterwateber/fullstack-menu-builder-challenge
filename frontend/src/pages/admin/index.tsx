@@ -114,7 +114,7 @@ const Admin: React.FC<Props> = (props) => {
                 <title>Admin page</title>
             </Helmet>
             <Grid container spacing={5}>
-                <Grid className={classes.left} item xs={3}>
+                <Grid className={classes.left} item xs={12} sm={4}>
                     <Typography variant="caption">
                         Welcome,{" "}
                         <strong>
@@ -147,7 +147,7 @@ const Admin: React.FC<Props> = (props) => {
                         onChangeOther={onChangeOther}
                     />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={12} sm={8} md={5} lg={4}>
                     <Preview
                         name={name}
                         price={price}
@@ -167,7 +167,10 @@ const Admin: React.FC<Props> = (props) => {
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-            padding: "40px 0",
+            padding: "40px 20px",
+            [theme.breakpoints.up("md")]: {
+                padding: "40px 0",
+            },
         },
         left: {
             borderRight: "1px solid #CCC",
