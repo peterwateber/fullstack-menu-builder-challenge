@@ -45,20 +45,20 @@ RegisterRoutes(router)
 /**
  * Middleware to authenticate header token
  */
-app.use(async (ctx: Context, next: Next) => {
-    const auth: AuthResponse = await AuthService.authenticate(ctx.header?.token)
-    if (Boolean(auth?.uid)) {
-        await next()
-    } else {
-        ctx.status = 401
-        ctx.body = {
-            error: true,
-            title: "Authentication required.",
-            message: "Please login.",
-            showLogout: true
-        }
-    }
-})
+// app.use(async (ctx: Context, next: Next) => {
+//     const auth: AuthResponse = await AuthService.authenticate(ctx.header?.token)
+//     if (Boolean(auth?.uid)) {
+//         await next()
+//     } else {
+//         ctx.status = 401
+//         ctx.body = {
+//             error: true,
+//             title: "Authentication required.",
+//             message: "Please login.",
+//             showLogout: true
+//         }
+//     }
+// })
 
 app.use(router.routes()).use(router.allowedMethods())
 

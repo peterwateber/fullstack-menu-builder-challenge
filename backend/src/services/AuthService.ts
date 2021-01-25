@@ -10,6 +10,13 @@ export class AuthService {
             }
         } catch (ex) {
             console.log("Error", ex)
+            throw {
+                code: 401,
+                error: true,
+                title: "Authentication required.",
+                message: "Please login.",
+                showLogout: true,
+            }
         }
     }
 }

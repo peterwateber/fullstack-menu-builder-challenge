@@ -2,3 +2,12 @@
 - API Contract, Backend and Frontend are in different services. Please follow `README` on each folder on how to start.
 - Using Google Firebase authentication and Firebase Database to access and save data
 - By default, you will be asked to login. Credential is found the README
+- There are four urls:
+    - `/login`
+        - This is the app entry point.
+    - `/admin`
+        - Logged in users will be able to add menu items
+    - `/demo`
+        - Users will see menu items
+    - `/demo/:id`
+        - Users will see specific menu items

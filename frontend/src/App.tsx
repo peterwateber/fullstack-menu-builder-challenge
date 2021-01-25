@@ -16,11 +16,11 @@ const App: React.FC = () => {
                 {hasNoCredentials && (
                     <Route path="/login" component={Login} />
                 )}
-                <PrivateRoute exact path="/" component={Admin} />
-                <PrivateRoute exact path="/demo" component={Demo} />
-                <PrivateRoute exact path="/demo/:id" component={Demo} />
+                <Route exact path="/demo" component={Demo} />
+                <Route path="/demo/:id" component={Demo} />
+                <PrivateRoute path="/" component={Admin} />
                 <Route>
-                    <Redirect to="/" />
+                    <Redirect to="/demo" />
                 </Route>
             </Switch>
         </BrowserRouter>

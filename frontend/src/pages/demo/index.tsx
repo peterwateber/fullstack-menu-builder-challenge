@@ -11,7 +11,7 @@ import MenuItem from "@material-ui/core/MenuItem"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 import TextField from "@material-ui/core/TextField"
 import Typography from "@material-ui/core/Typography"
-import { Category, Dish, Menus } from "api-contract"
+import { Category, Dish, Menus, UserState } from "api-contract"
 import queryString from "query-string"
 import React, { useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
@@ -32,7 +32,7 @@ interface DispatchProps {
 
 interface Props extends DispatchProps, RouteComponentProps<any> {
     menu: Menus
-    email: string | undefined
+    user: UserState
     loading: boolean
 }
 
@@ -75,8 +75,12 @@ const Demo: React.FC<Props> = (props) => {
 
     const logout = async () => {
         await AuthService.signOut()
-        window.location.href = "/login"
+        props.history.replace("/demo")
         props.clearAuthUser()
+    }
+
+    const login = () => {
+        window.location.href = "/login"
     }
 
     const onChangeFilterCategory = (value: Category, index: number) => {
@@ -90,7 +94,6 @@ const Demo: React.FC<Props> = (props) => {
         setDish(value)
         handleFilterSelection(value, "Dish", index)
     }
-    
 
     useEffect(() => {
         const findSelected = (by: any, byStr: string): any => {
@@ -117,6 +120,8 @@ const Demo: React.FC<Props> = (props) => {
         const id = props.match.params.id
         if (Boolean(id)) {
             getMenuDetails(id)
+        } else {
+            setOpenMenuDialog(false)
         }
     }, [getMenuDetails, props.match.params.id])
 
@@ -198,14 +203,20 @@ const Demo: React.FC<Props> = (props) => {
                     ))}
                 </List>
                 <Divider />
-                <List component="nav">
-                    <ListItem button>
-                        <ListItemText
-                            primary="Logout"
-                            onClick={logout}
-                        />
-                    </ListItem>
-                </List>
+                {Boolean(props.user.token) && (
+                    <List component="nav">
+                        <ListItem button>
+                            <ListItemText primary="Logout" onClick={logout} />
+                        </ListItem>
+                    </List>
+                )}
+                {!Boolean(props.user.token) && (
+                    <List component="nav">
+                        <ListItem button>
+                            <ListItemText primary="Login" onClick={login} />
+                        </ListItem>
+                    </List>
+                )}
             </Drawer>
             <main className={classes.content}>
                 <Grid spacing={3} container>
@@ -267,16 +278,18 @@ const Demo: React.FC<Props> = (props) => {
                             </TextField>
                         </div>
                         <h3>
-                            Welcome, <em>{props?.email}</em>!
+                            Welcome, <em>{props.user.email}</em>!
                         </h3>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            disableElevation
-                            onClick={logout}
-                        >
-                            Logout
-                        </Button>
+                        {Boolean(props.user.token) && (
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                disableElevation
+                                onClick={logout}
+                            >
+                                Logout
+                            </Button>
+                        )}
                     </Grid>
                     {Boolean(Object.values(queryParams).length) && (
                         <Grid item xs={12}>
@@ -349,7 +362,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const mapStateToProps = (state: RootState) => ({
     menu: state.menu.menu,
-    email: state.auth.user.email,
+    user: state.auth.user,
     loading: state.menu.loading,
 })
 

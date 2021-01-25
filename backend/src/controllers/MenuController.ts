@@ -1,9 +1,14 @@
-import { Category, Dish, GetAllMenuRequest, Menu, Menus } from "api-contract"
+import {
+    GetAllMenuRequest,
+    Menu,
+    Menus,
+} from "api-contract"
 import Koa from "koa"
 import { tagsAll } from "koa-swagger-decorator"
 import MenuService from "../services/MenuService"
 import { Controller, Get, Put, Request, Route, SuccessResponse } from "tsoa"
 import { sanitizeInput } from "../utils/SanitizeInput"
+import { AuthService } from "../services/AuthService"
 
 @tagsAll(["menu"])
 @Route("menu")
@@ -27,6 +32,7 @@ export class MenuController extends Controller {
     @SuccessResponse(204)
     public async save(@Request() request: Koa.Request) {
         try {
+            await AuthService.authenticate(request.header?.token)
             const {
                 name,
                 price,
@@ -53,7 +59,7 @@ export class MenuController extends Controller {
             })
         } catch (ex) {
             this.setStatus(ex.code)
-            if (ex.code === 503) {
+            if (ex.code === 503 || ex.code === 401) {
                 return ex
             } else {
                 return {
