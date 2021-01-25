@@ -3,7 +3,7 @@
  */
 export declare enum Category {
     BREAKFAST = "Breakfast",
-    LUNCH = "LUNCH",
+    LUNCH = "Lunch",
     DINNER = "Dinner"
 }
 export declare enum Dish {
@@ -30,4 +30,17 @@ export interface Menus {
 export interface MenuState {
     menu: Menus;
     viewing: Menu | null;
+    loading: boolean;
+    isViewingLoading: boolean;
+}
+/**
+ * Request
+ */
+export declare enum GetAllMenuRequestBy {
+    Category = "Category",
+    Dish = "Dish"
+}
+export interface GetAllMenuRequest {
+    by: GetAllMenuRequestBy;
+    value: string;
 }

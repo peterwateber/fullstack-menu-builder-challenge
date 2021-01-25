@@ -2,10 +2,13 @@ import { Menu, Menus, MenuState } from "api-contract"
 import { Action } from "redux"
 import { ThunkAction } from "redux-thunk"
 import MenuService from "services/Menu"
+import { setAuthModal } from "./Auth"
 
 export enum MenuActionType {
     SET_MENU = "set/menu",
     SET_VIEWING = "set/menu/viewing",
+    SET_LOADING = "set/menu/loading",
+    SET_VIEWING_LOADING = "set/menu/viewing/loading",
 }
 
 export interface MenuAction {
@@ -23,18 +26,47 @@ export const setMenu = (menu: Menus): MenuAction => ({
     },
 })
 
-const setMenuViewing = (viewing: Menu): MenuAction => ({
+export const setMenuViewing = (viewing: Menu | null): MenuAction => ({
     type: MenuActionType.SET_VIEWING,
     payload: {
         viewing,
     },
 })
 
-export const getAllMenu = (): ThunkAction<any, any, any, Action> => {
+export const setMenuLoading = (loading: boolean): MenuAction => ({
+    type: MenuActionType.SET_LOADING,
+    payload: {
+        loading,
+    },
+})
+
+export const setViewingMenuLoading = (isViewingLoading: boolean): MenuAction => ({
+    type: MenuActionType.SET_VIEWING_LOADING,
+    payload: {
+        isViewingLoading,
+    },
+})
+
+export const getAllMenu = (params: object): ThunkAction<any, any, any, Action> => {
     return async (dispatch) => {
-        const menu = await MenuService.getAll()
-        // To avoid internal server errors
-        dispatch(setMenu(menu))
+        try {
+            dispatch(setMenuLoading(true))
+            const menu = await MenuService.getAll(params)
+            // To avoid internal server errors
+            dispatch(setMenu(menu))
+        } catch (ex) {
+            dispatch(
+                setAuthModal({
+                    modal: {
+                        error: true,
+                        title: ex.title,
+                        message: ex.message,
+                        showLogout: !!ex.showLogout,
+                    },
+                })
+            )
+        }
+        dispatch(setMenuLoading(false))
     }
 }
 
@@ -42,8 +74,24 @@ export const getMenuDetails = (
     id: string
 ): ThunkAction<any, any, any, Action> => {
     return async (dispatch) => {
-        const menu = await MenuService.getMenuDetails(id)
-        // To avoid internal server errors
-        dispatch(setMenuViewing(menu))
+        dispatch(setViewingMenuLoading(true))
+        dispatch(setMenuViewing(null))
+        try {
+            const menu = await MenuService.getMenuDetails(id)
+            // To avoid internal server errors
+            dispatch(setMenuViewing(menu))
+        } catch (ex) {
+            dispatch(
+                setAuthModal({
+                    modal: {
+                        error: true,
+                        title: ex.title,
+                        message: ex.message,
+                        showLogout: !!ex.showLogout,
+                    },
+                })
+            )
+        }
+        dispatch(setViewingMenuLoading(false))
     }
 }

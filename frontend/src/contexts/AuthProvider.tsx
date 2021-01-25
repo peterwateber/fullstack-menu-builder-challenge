@@ -34,16 +34,20 @@ const AuthProvider: React.FC<Props> = (props) => {
         open: false,
         title: props.auth?.modal.title || "",
         message: props.auth?.modal.message,
+        showLogout: false,
     })
-    const [unauthorized, setUnauthorized] = useState(true)
 
-    const setGeneralError = (title: string, message: string) => {
+    const setGeneralError = (
+        title: string,
+        message: string,
+        showLogout: boolean = false
+    ) => {
         setModal({
             open: true,
             title,
             message,
+            showLogout,
         })
-        setUnauthorized(false)
     }
 
     const handleModalClose = async () => {
@@ -52,7 +56,7 @@ const AuthProvider: React.FC<Props> = (props) => {
             open: false,
         })
 
-        if (unauthorized) {
+        if (props.auth?.modal.showLogout) {
             await AuthService.signOut()
             props.clearAuthUser()
             window.location.reload()
@@ -77,15 +81,23 @@ const AuthProvider: React.FC<Props> = (props) => {
     }, [setAuthUser])
 
     useEffect(() => {
+        if (props.auth?.modal.error) {
+            setModal({
+                open: true,
+                title: props.auth.modal.title,
+                message: props.auth.modal.message,
+                showLogout: props.auth.modal.showLogout,
+            })
+        }
+    }, [props.auth?.modal])
+
+    useEffect(() => {
         async function getToken() {
             if (props.auth?.user?.token) {
-                const user = await AuthService.validateAuth()
-                if (user.error) {
-                    setModal({
-                        open: true,
-                        message: user.message,
-                        title: user.title,
-                    })
+                try {
+                    await AuthService.validateAuth()
+                } catch (ex) {
+                    setGeneralError(ex.title, ex.message, ex.showLogout)
                 }
                 setAuth({
                     loading: props?.auth?.loading || false,
@@ -95,7 +107,7 @@ const AuthProvider: React.FC<Props> = (props) => {
             }
         }
         getToken()
-    }, [props.auth])
+    }, [props.auth?.user, props.auth?.loading])
 
     return (
         <AuthContext.Provider value={{ auth, setAuthData, setGeneralError }}>
@@ -112,9 +124,12 @@ const AuthProvider: React.FC<Props> = (props) => {
                         {modal.title}
                     </DialogTitle>
                     <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                            {modal.message}
-                        </DialogContentText>
+                        <DialogContentText
+                            id="alert-dialog-description"
+                            dangerouslySetInnerHTML={{
+                                __html: modal.message || "",
+                            }}
+                        />
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleModalClose} color="primary">
@@ -139,8 +154,33 @@ const theme = createMuiTheme({
                 fontFamily: "Lato, sans-serif !important",
             },
             body1: {
-                fontSize: 14
-            }
+                fontSize: 14,
+            },
+        },
+        MuiFormLabel: {
+            root: {
+                fontFamily: "Lato, sans-serif !important",
+            },
+        },
+        MuiInput: {
+            root: {
+                fontFamily: "Lato, sans-serif !important",
+            },
+        },
+        MuiOutlinedInput: {
+            root: {
+                fontFamily: "Lato, sans-serif !important",
+            },
+        },
+        MuiTextField: {
+            root: {
+                fontFamily: "Lato, sans-serif !important",
+            },
+        },
+        MuiMenuItem: {
+            root: {
+                fontFamily: "Lato, sans-serif !important",
+            },
         },
     },
 })

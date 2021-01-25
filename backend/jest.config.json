@@ -1,0 +1,11 @@
+{
+    "verbose": true,
+    "bail": false,
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": ["/node_modules/"],
+    "testMatch": [
+        "<rootDir>/src/**/?(*.)(spec).(js|ts)?(x)",
+        "<rootDir>/src/**/__tests__/**/*.(js|ts)?(x)",
+        "<rootDir>/src/**/__tests__/**/?(*.)(spec).(js|ts)?(x)"
+    ]
+}

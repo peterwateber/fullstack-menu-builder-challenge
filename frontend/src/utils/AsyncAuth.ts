@@ -11,48 +11,59 @@ export default class AsyncAction {
         axios.defaults.headers = {
             "Access-Control-Allow-Origin": "*",
             "Content-Type": "application/json",
-            token: authData.token
+            token: authData.token,
         }
     }
 
-    static showAuthError(err: Error) {
-        return {
-            ...err,
-            error: true,
-            title: "Authentication error.",
-            message: "Authentication is required. You will need to login.",
-        }
+    static showAuthError() {
+        throw Object.assign(
+            new Error("Authentication is required. You will need to login"),
+            {
+                error: true,
+                title: "Authentication error.",
+                showLogout: true,
+            }
+        )
     }
 
     static showServerError(err: AxiosError) {
-        return {
-            ...err,
+        throw Object.assign(new Error(err.response?.data.message), {
             error: true,
             title: err.response?.data.title,
-            message: err.response?.data.message,
-        }
+            showLogout: false,
+        })
     }
 
-    static async get(
-        url: string,
-        parameter?: object
-    ): Promise<any> {
+    static showGeneralError() {
+        throw Object.assign(new Error("Please try again later."), {
+            error: true,
+            title: "Oops! An error occured.",
+            showLogout: false,
+        })
+    }
+
+    static async get(url: string, parameter?: object): Promise<any> {
         AsyncAction._setHeader()
         try {
             const response: AxiosResponse = await axios.get(
                 API_URL.concat(url),
-                parameter
+                {
+                    params: parameter,
+                }
             )
             return response.data
         } catch (ex) {
-            return AsyncAction.showAuthError(ex)
+            if (ex.response.status === 401) {
+                AsyncAction.showAuthError()
+            } else if (ex.response.status === 500) {
+                AsyncAction.showGeneralError()
+            } else {
+                AsyncAction.showServerError(ex)
+            }
         }
     }
 
-    static async post(
-        url: string,
-        parameter?: object
-    ): Promise<any> {
+    static async post(url: string, parameter?: object): Promise<any> {
         AsyncAction._setHeader()
         try {
             const response: AxiosResponse = await axios.post(
@@ -62,18 +73,16 @@ export default class AsyncAction {
             return response.data
         } catch (ex) {
             if (ex.response.status === 401) {
-                return AsyncAction.showAuthError(ex)
+                AsyncAction.showAuthError()
+            } else if (ex.response.status === 500) {
+                AsyncAction.showGeneralError()
             } else {
-                // mostly validation error
-                return AsyncAction.showServerError(ex)
+                AsyncAction.showServerError(ex)
             }
         }
     }
 
-    static async put(
-        url: string,
-        parameter?: object
-    ): Promise<any> {
+    static async put(url: string, parameter?: object): Promise<any> {
         AsyncAction._setHeader()
         try {
             const response: AxiosResponse = await axios.put(
@@ -83,10 +92,11 @@ export default class AsyncAction {
             return response.data
         } catch (ex) {
             if (ex.response.status === 401) {
-                return AsyncAction.showAuthError(ex)
+                AsyncAction.showAuthError()
+            } else if (ex.response.status === 500) {
+                AsyncAction.showGeneralError()
             } else {
-                // mostly validation error
-                return AsyncAction.showServerError(ex)
+                AsyncAction.showServerError(ex)
             }
         }
     }

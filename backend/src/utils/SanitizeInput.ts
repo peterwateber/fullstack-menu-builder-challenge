@@ -4,16 +4,20 @@ interface TypeObj {
 
 export const sanitizeInput = (obj: TypeObj) => {
     let flag = false, errors = ''
+    if (!Boolean(Object.values(obj).length)) throw "Request body could not be empty."
     Object.keys(obj).forEach((input: string) => {
-        const _value = (obj[input] || "").trim()
+        const _value = (obj[input] || "").toString().trim()
         if (!Boolean(_value)) {
             flag = true
-            errors += `Field '${input}' cannot be empty. `
+            errors += `Field '${input}' cannot be empty.<br/>`
         }
         obj[input] = _value
     })
     if (flag) {
-        throw errors.trim()
+        throw {
+            code: 403,
+            message: errors.trim()
+        }
     }
     return obj
 }

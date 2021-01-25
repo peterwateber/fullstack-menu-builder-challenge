@@ -6,6 +6,7 @@ describe("SanitizeInput", () => {
             sanitizeInput({
                 title: "",
                 message: "",
+                what: ""
             })
         ).toThrowError(
             "Field 'title' cannot be empty. Field 'message' cannot be empty."

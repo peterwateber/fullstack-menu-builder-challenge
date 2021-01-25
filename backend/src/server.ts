@@ -53,7 +53,9 @@ app.use(async (ctx: Context, next: Next) => {
         ctx.status = 401
         ctx.body = {
             error: true,
-            message: "Authentication required.",
+            title: "Authentication required.",
+            message: "Please login.",
+            showLogout: true
         }
     }
 })

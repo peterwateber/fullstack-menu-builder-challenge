@@ -6,7 +6,8 @@ const INITIAL_STATE: AuthState = {
     modal: {
         error: false,
         message: "",
-        title: ""
+        title: "",
+        showLogout: false
     },
     user: {
         email: undefined,
